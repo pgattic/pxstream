@@ -5,19 +5,11 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Document</title>
-		<style>
-canvas {
-	image-rendering: optimizeSpeed;
-	image-rendering: -webkit-optimize-contrast;
-	image-rendering: pixelated;
-}
-
-		</style>
 	</head>
 	<body>
 		<canvas id="output" width="512" height="512"></canvas><br>
 		<input type="file" id="upload" accept=".json">Pixels Loaded: <span id="bytes">0</span><br>
-		<input id="limit" type="range" min=0 max=16384 value=0 style="width: 512px" oninput="refreshImage()">
+		<input id="limit" type="range" min=0 max=16384 value=0 style="width: 512px; display: none">
 		<script src="decoder.js"></script>
 	</body>
 </html>

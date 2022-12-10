@@ -9,6 +9,9 @@ def base_convert(n, b):
 			n = n // b
 	return result
 
+def rgb2hex(rgb):
+    return '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
+
 # Load image and read contents
 
 in_file = input("File to open: ")
@@ -43,8 +46,7 @@ encoded_img = []
 
 for curr_pix in range(lim):
 	[x, y] = calc_coord(curr_pix, img.size[0], img.size[1])
-	encoded_img.append(image[int(y)][int(x)])
-
+	encoded_img.append(rgb2hex(image[int(y)][int(x)]))
 
 out_file = open("out.json", "w")
 json.dump(encoded_img, out_file)
