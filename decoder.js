@@ -4,6 +4,8 @@
 
 const $=(x)=>{return document.querySelector(x)}
 
+const imageScale = 1;
+
 async function retrieve(url) {
   const response = await fetch(url);
   return await response.json();
@@ -31,9 +33,11 @@ function placeFileContent(file) {
 		clearInterval(go);
 		let stream = JSON.parse(content);
 		$('#limit').style.display = "initial";
-		$('#limit').max = stream.length;
-		$("#limit").value = stream.length;
-		displayImg(stream, stream.length);
+		$('#limit').max = stream[1].length;
+		$("#limit").value = stream[1].length;
+		$("#output").width = stream[0][0] * imageScale;
+		$("#output").height = stream[0][1] * imageScale;
+		displayImg(stream, stream[1].length);
 	}).catch(error => console.log(error))
 }
 
@@ -45,7 +49,7 @@ upload.onchange = (e) => {
 }
 
 $("#limit").oninput = () => {
-	displayImg(storeResult, $('#limit').value);
+	displayImg(storeResult, Number($('#limit').value));
 	$('#bytes').innerText=$('#limit').value;	
 }
 
@@ -77,26 +81,38 @@ function calcPos(num) { // calculates x, y, and width all from one integer!
 	return [x, y, w];
 }
 
-function doPixel(result, currPix, limit=16384) {
-	let coords = calcPos(currPix);
-	let [x, y, w] = coords
-	let boxOffset = -(out.width * w/2)
+function doPixel(result, currPix, renderLimit=16384, numOfSkipped) {
+	let coords;
+	do {
+		coords = calcPos(currPix + numOfSkipped);
+		numOfSkipped++;
+	} while (coords[0]*renderLimit >= result[0][0] || coords[1]* renderLimit >= result[0][1])
+	numOfSkipped--;
+	let [x, y, w] = coords;
+	let boxOffset = -(imageScale * renderLimit * w/2);
 	ctx.beginPath();
-	ctx.rect(x*out.width + boxOffset, y*out.height + boxOffset, out.width * w, out.height * w);
+	ctx.rect(x*renderLimit * imageScale + boxOffset, y*renderLimit * imageScale + boxOffset, renderLimit * w * imageScale, renderLimit * w * imageScale);
 //	ctx.rect(x*out.width, y*out.height, out.width/128, out.height/128); // replace previous line with this to see the image without interpolation
-	ctx.fillStyle = result[currPix];
+	ctx.fillStyle = result[1][currPix];
 	ctx.fill();
 	$("#bytes").innerText = currPix;
+	return numOfSkipped;
 }
 
 
 let storeResult;
 
-let displayImg = (result = storeResult, limit=16384) => {
-	storeResult = result;
+let displayImg = (result = [...storeResult], limit=16384) => {
+	storeResult = [...result];
+	let renderLimit = 2 ** Math.ceil(Math.log2(Math.max(result[0][0], result[0][1]))); // dimension of image if rounded up to nearest power of 2
+	let numOfSkipped = 0;
+	// adjust image origin to remove white edges
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
 	ctx.clearRect(0, 0, out.width, out.height);
+	let translateDist = imageScale / 2;
+	ctx.setTransform(1, 0, 0, 1, translateDist, translateDist);
 	for (let currPix = 0; currPix < limit; currPix++) {
-		doPixel(result, currPix, limit);
+		numOfSkipped = doPixel(result, currPix, renderLimit, numOfSkipped);
 	}
 }
 

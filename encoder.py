@@ -1,6 +1,7 @@
 from PIL import Image
 import numpy as np
 import json
+import math
 
 def base_convert(n, b):
 	result = []
@@ -20,8 +21,10 @@ img = Image.open(in_file).convert("RGB")
 
 image = np.array(img).tolist()
 
+dimensions = (img.size[0], img.size[1])
+render_limit = 2 ** math.ceil(math.log(max(img.size[0], img.size[1]), 2))
 
-lim = min(img.size[0], img.size[1]) ** 2 # number of pixels needed
+lim = render_limit ** 2 # number of pixels needed
 
 
 def calc_coord(idx, width, height):
@@ -39,14 +42,18 @@ def calc_coord(idx, width, height):
 			case 1:
 				x += inc
 				y += inc
-	return [x * width, y * height]
+	return [int(x * width), int(y * height)]
 
+def convert_image(image):
+	out = []
+	for curr_pix in range(lim):
+		[x, y] = calc_coord(curr_pix, render_limit, render_limit)
+		if len(image) > y and len(image[y]) > x:
+			out.append(rgb2hex(image[int(y)][int(x)]))
+	return out
 
-encoded_img = []
+encoded_img = [dimensions, convert_image(image)]
 
-for curr_pix in range(lim):
-	[x, y] = calc_coord(curr_pix, img.size[0], img.size[1])
-	encoded_img.append(rgb2hex(image[int(y)][int(x)]))
 
 out_file = open("out.json", "w")
 json.dump(encoded_img, out_file)
