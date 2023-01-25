@@ -13,6 +13,12 @@ def base_convert(n, b):
 def rgb2hex(rgb):
     return '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
 
+
+def rgb2fifteen(rgb):
+	for i in range(0, len(rgb)):
+		rgb[i] = int(rgb[i] / 32) * 32
+	return '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
+
 # Load image and read contents
 
 in_file = input("File to open: ")
@@ -49,7 +55,7 @@ def convert_image(image):
 	for curr_pix in range(lim):
 		[x, y] = calc_coord(curr_pix, render_limit, render_limit)
 		if len(image) > y and len(image[y]) > x:
-			out.append(rgb2hex(image[int(y)][int(x)]))
+			out.append(rgb2fifteen(image[int(y)][int(x)]))
 	return out
 
 encoded_img = [dimensions, convert_image(image)]

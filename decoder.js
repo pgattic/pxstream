@@ -4,7 +4,7 @@
 
 const $=(x)=>{return document.querySelector(x)}
 
-const imageScale = 1;
+const imageScale = 4;
 
 async function retrieve(url) {
   const response = await fetch(url);
