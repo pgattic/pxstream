@@ -1,0 +1,6 @@
+decoder
+decoder.c
+Makefile
+*.pxs
+tasks.json
+settings.json

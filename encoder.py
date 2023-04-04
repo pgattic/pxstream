@@ -2,22 +2,36 @@ from PIL import Image
 import numpy as np
 import json
 import math
+import binascii
+
+
+CHANNEL_BIT_DEPTH = 8
+CHANNEL_BIT_MASK = int("0b"+("1"*CHANNEL_BIT_DEPTH)+("0"*(8-CHANNEL_BIT_DEPTH)), 2)
 
 def base_convert(n, b):
 	result = []
 	while n > 0:
-			result.insert(0, n % b)
-			n = n // b
+		result.insert(0, n % b)
+		n = n // b
 	return result
 
 def rgb2hex(rgb):
-    return '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
+	return '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
 
 
 def rgb2fifteen(rgb):
 	for i in range(0, len(rgb)):
-		rgb[i] = int(rgb[i] / 32) * 32
+		rgb[i] = rgb[i] & CHANNEL_BIT_MASK
 	return '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
+
+def rgb2fhex(rgb):
+	final = 0
+	for i in range(len(rgb)):
+		final |= (rgb[i] >> (8 - CHANNEL_BIT_DEPTH)) << (CHANNEL_BIT_DEPTH * (2 - i))
+	if CHANNEL_BIT_DEPTH == 5:
+		return "{:04x}".format(final)
+	else:
+		return "{:06x}".format(final)
 
 # Load image and read contents
 
@@ -52,15 +66,20 @@ def calc_coord(idx, width, height):
 
 def convert_image(image):
 	out = []
+	out_hex = ""
 	for curr_pix in range(lim):
 		[x, y] = calc_coord(curr_pix, render_limit, render_limit)
 		if len(image) > y and len(image[y]) > x:
 			out.append(rgb2fifteen(image[int(y)][int(x)]))
-	return out
+			hex = rgb2fhex(image[int(y)][int(x)])
+			out_hex += hex
+#	return out
+	return out_hex
 
-encoded_img = [dimensions, convert_image(image)]
 
+out_bin = open("out-8bit.pxs", "wb")
+out_bin.write(binascii.unhexlify(convert_image(image)))
 
-out_file = open("out.json", "w")
-json.dump(encoded_img, out_file)
+#out_json = open("out.json", "w")
+#json.dump([dimensions, convert_image(image)], out_json)
 

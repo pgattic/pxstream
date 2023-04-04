@@ -1,3 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Document</title>
+	</head>
+	<body>
+		<canvas id="output" width="512" height="512"></canvas><br>
+		<input type="file" id="upload" accept=".json">Pixels Loaded: <span id="bytes">0</span><br>
+		<input id="limit" type="range" min=0 max=16384 value=0 style="width: 512px; display: none">
+		<script>
 "use strict"; // Using strict mode. Like a giga-chad.
 
 // global stuff
@@ -81,7 +94,7 @@ function calcPos(num) { // calculates x, y, and width all from one integer!
 	return [x, y, w];
 }
 
-function doPixel(result, currPix, renderLimit=16384, numOfSkipped, multiple) {
+function doPixel(result, currPix, renderLimit=16384, numOfSkipped) {
 	let coords;
 	do {
 		coords = calcPos(currPix + numOfSkipped);
@@ -91,10 +104,11 @@ function doPixel(result, currPix, renderLimit=16384, numOfSkipped, multiple) {
 	let [x, y, w] = coords;
 	let boxOffset = -(imageScale * renderLimit * w/2);
 	ctx.beginPath();
-	ctx.rect(x*multiple + boxOffset, y*multiple + boxOffset, w * multiple, w * multiple);
+	ctx.rect(x*renderLimit * imageScale + boxOffset, y*renderLimit * imageScale + boxOffset, renderLimit * w * imageScale, renderLimit * w * imageScale);
 //	ctx.rect(x*out.width, y*out.height, out.width/128, out.height/128); // replace previous line with this to see the image without interpolation
 	ctx.fillStyle = result[1][currPix];
 	ctx.fill();
+	$("#bytes").innerText = currPix;
 	return numOfSkipped;
 }
 
@@ -105,16 +119,14 @@ let displayImg = (result = [...storeResult], limit=16384) => {
 	storeResult = [...result];
 	let renderLimit = 2 ** Math.ceil(Math.log2(Math.max(result[0][0], result[0][1]))); // dimension of image if rounded up to nearest power of 2
 	let numOfSkipped = 0;
-	let multiple = renderLimit * imageScale;
 	// adjust image origin to remove white edges
 	ctx.setTransform(1, 0, 0, 1, 0, 0);
 	ctx.clearRect(0, 0, out.width, out.height);
 	let translateDist = imageScale / 2;
 	ctx.setTransform(1, 0, 0, 1, translateDist, translateDist);
 	for (let currPix = 0; currPix < limit; currPix++) {
-		numOfSkipped = doPixel(result, currPix, renderLimit, numOfSkipped, multiple);
+		numOfSkipped = doPixel(result, currPix, renderLimit, numOfSkipped);
 	}
-	$("#bytes").innerText = limit;
 }
 
 
@@ -127,3 +139,6 @@ let go = setInterval(()=>{ // "Algorithm demo", plays upon load
 	p++;
 }, 1);
 
+		</script>
+	</body>
+</html>

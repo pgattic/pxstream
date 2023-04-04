@@ -35,4 +35,4 @@ Pixels are stored in one of two methods, to optimize compression. Their storage 
 
 
 ## Ideas:
- - per-pixel "Finality" bit flag (if set, all future overlapping pixels should be treated as out-of-bounds and skipped) - would be nonexistant in final layer of pixels. It could be used in place of the storage type bitflag, depending on data savings
+ - per-pixel "Finality" bit flag (if set, all future overlapping pixels should be treated as out-of-bounds, automatically copy the parent's color, and be skipped) - would be nonexistant in first few an final layer of pixels. It could be used in place of the storage type bitflag, depending on data savings
