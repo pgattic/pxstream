@@ -2,11 +2,11 @@
 
 Developers in the modern web are constantly looking for a means of acceleration, to get content served faster and more efficiently to its users. This has led to the emergence of modern technologies to streamline it. Take, for example, the webp standard, introduced by Google in 2010 and widely supported by web browsers by 2020. 
 
-This is my personal approach to image compression. I do not know where this format will go, or if it will even go anywhere, but in the meantime I think it is an experiment that will interest you. 
+This is my personal approach to image compression. I do not know where this format will go, or if it will even go anywhere, but in the meantime I personally find it an interesting experiment. 
 
 ## About
 
-This format is meant to provide extremely flexible compression of graphics which can also be resolved dynamically as more data comes. It is written in such a way that as more data is appended to the end of the file, the more resolved the image gets. Vice versa applies; as more data is removed from the end of the file, the image's resolution decreases. 
+This format is capable of providing extremely flexible compression of graphics which can also be resolved dynamically as more data comes. It is designed in such a way that as more data is appended to the end of the file, the more resolved the image gets. Vice versa applies; as more data is removed from the end of the file, the image's resolution decreases. 
 
 This makes it so that the image can be displayed at full size on a webpage while it is being downloaded by the browser, sacrificing no section or chunk of the image by slow data speeds but merely resolution. Thus, a single file from a web server could theoretically be used to serve multiple resolutions of an image (i.e. to mobile users vs. desktop users) simply by cutting off the file past a certain transfer size. 
 
@@ -16,7 +16,15 @@ Since the inception of this idea, I have not come across any image format that u
 
 ## Progress
 
-This is currently in a proof-of-concept state, with just an HTML-based demo, and an admittedly bloated .json file acting as the image data's only medium of storage. It is only capable of square images, and unless the original image's resolution is a power of 2, it will be lossy. However, this will not always be the case going forward. 
+### Encoder (Python):
+
+- Capable of producing JSON-serialized images as well as .pxs binaries in either 24-bit or 15-bit color depth, with header support.
+- Still lacks by-pixel compression as described in the [Specs](specification.md). 
+
+### Display (HTML + JS):
+
+- Can display JSON-serialized images, with support for non-square resolution. 
+- No support for binaries-yet!
 
 ## Usage
 
