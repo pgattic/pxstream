@@ -6,7 +6,7 @@ This is my personal approach to image compression. I do not know where this form
 
 ## About
 
-This format is capable of providing extremely flexible compression of graphics which can also be resolved dynamically as more data comes. It is designed in such a way that as more data is appended to the end of the file, the more resolved the image gets. Vice versa applies; as more data is removed from the end of the file, the image's resolution decreases. 
+This format is capable of providing extremely flexible compression of graphics which can also be resolved dynamically as more data comes. It is designed in such a way that more data can be appended to the end of a file in order to up its resolution. Vice versa applies; as more data is removed from the end of the file, the image's resolution decreases. 
 
 This makes it so that the image can be displayed at full size on a webpage while it is being downloaded by the browser, sacrificing no section or chunk of the image by slow data speeds but merely resolution. Thus, a single file from a web server could theoretically be used to serve multiple resolutions of an image (i.e. to mobile users vs. desktop users) simply by cutting off the file past a certain transfer size. 
 
@@ -14,22 +14,30 @@ And the best part? No data is wasted on storing the locations of the pixels; rat
 
 Since the inception of this idea, I have not come across any image format that uses such a concept so extensively; though it is in some ways comparable to (but not derived from) libpng's [interlacing and progressive display](http://www.libpng.org/pub/png/book/chapter08.html#png.ch08.div.6) specifications. 
 
-## Progress
+## Progress/Roadmap
 
-### Encoder (Python):
+| Language | JSON* | Binary (pxs) | Image Header | [By-Pixel Compression](specification.md) |
+| ---------------- | :-: | :-: | :-: | :-: |
+| Python (Converter) | ✔️ | ✔️ | ✔️ | ❌ |
+| HTML5 (Viewer)     | ✔️ | ❌ | ✔️ | ❌ |
+| C (Viewer)         | ❌ | ✔️ | ❌ | ❌ |
 
-- Capable of producing JSON-serialized images as well as .pxs binaries in either 24-bit or 15-bit color depth, with header support.
-- Still lacks by-pixel compression as described in the [Specs](specification.md). 
-
-### Display (HTML + JS):
-
-- Can display JSON-serialized images, with support for non-square resolution. 
-- No support for binaries-yet!
+\* The JSON format was used for simplicity's sake in testing the algorithm and will soon be removed.
 
 ## Usage
 
 Currently the renderer is made with vanilla JavaScript and the encoder in Python for ease of use and comfort of development, but this may change in the future. 
 
-1. Open the [demopage](https://pgattic.github.io/pxstream) on your web browser. With no image loaded, you will see a demonstration simulating pixel values being displayed as they would be received on a verry slow internet connection. The only difference is that in real applications the loaded pixels are interpolated as it awaits more data. 
-2. Insert an array of hex values, in JSON format. (You could use [out128-0321.json](out128-0321.json) from this repo or generate one from any python3-PIL supported image using the [encoder](encoder.py).)
+### Web
+
+1. Open the [demopage](https://pgattic.github.io/pxstream) on your web browser. With no image loaded, you will see a demonstration simulating pixel values being consecutively displayed as they would be received. The only difference is that in real applications the loaded pixels are interpolated as it awaits more data. 
+2. Insert an array of hex values, in JSON format. (You could use [out128-0321.json](out128-0321.json) from this repo or generate one using the [encoder](encoder.py).)
 3. Use the slider below the image to adjust the data cutoff point. 
+
+### Desktop (only tested on Linux, only supports pxs format, not JSON)
+
+1. `sudo apt update && sudo apt install make gcc`
+2. Also make sure you have Raylib installed on your machine (not available on most package managers unfortunately)
+3. Clone the repo and `cd` into it
+4. `make`
+5. `./decoder [image].pxs`
