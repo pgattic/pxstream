@@ -8,10 +8,21 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
-#include <raylib.h>
+#include <GL/gl.h>
+#include <GL/glut.h>
 
 #define RESOLUTION 256
+
+typedef struct {
+    int x;
+    int y;
+    int width;
+    int height;
+} Rectangle;
+
+char filePath[1000] = "";
 
 int log4int(int x) { return log(x) / log(4); }
 
@@ -39,28 +50,43 @@ void calcPos(int idx, Rectangle* rect) {
 }
 
 void displayPixel(int idx, unsigned char color[3]) {
-    Color pixelColor;
     Rectangle rect;
-
-    pixelColor.r = color[0];
-    pixelColor.g = color[1];
-    pixelColor.b = color[2];
-    pixelColor.a = 255;
 
     rect.x = rect.y = 0;
 
     calcPos(idx, &rect);
 
-    DrawRectangleRec(rect, pixelColor);
+//    printf("%d %d %d\n", color[0], color[1], color[2]);
+
+    glBegin(GL_QUADS);
+    glColor3f(color[0]/255, color[1]/255, color[2]/255);
+    glVertex2i(rect.x, rect.y);
+    glVertex2i(rect.x + rect.width, rect.y);
+    glVertex2i(rect.x + rect.width, rect.y + rect.height);
+    glVertex2i(rect.x, rect.y + rect.height);
+
+
+    // glPointSize(rect.width);
+    // glVertex2i(rect.x, rect.y);
+//    glRecti(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height);
+    glEnd();
+    glutSwapBuffers();
 }
 
-void handleFile(FILE* f) {
+void init() {
+    glClearColor( 0.5, 0.5, 0.5, 1 );  // (In fact, this is the default.)
+}
+
+void handleFile() {
+    glClearColor( 0.5, 0.5, 0.5, 1 );  // (In fact, this is the default.)
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    FILE* f = fopen(filePath, "r");
+    
     unsigned char curr; // current byte being read
     int head = 0; // read-head for the file
     int pixelIdx = 0;
     unsigned char color[3] = {0}; // RGB values
-
-    BeginDrawing();
 
     do {
         curr = fgetc(f);
@@ -72,8 +98,6 @@ void handleFile(FILE* f) {
             pixelIdx++;
         }
     } while (head <= 49152);
-
-    EndDrawing();
 }
 
 int main(int argc, char** argv) {
@@ -83,17 +107,18 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    FILE* f = fopen(argv[1], "r");
+    init();
 
-    InitWindow(RESOLUTION, RESOLUTION, "pxstream viewer - raylib");
+    strcpy(filePath, argv[1]);
 
-    handleFile(f);
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(RESOLUTION, RESOLUTION);
+    glutCreateWindow("pxstream viewer - glut");
 
-    SetTargetFPS(1);
-    while (!WindowShouldClose()){ // Yeah, a hackjob, I know. It works though
-        BeginDrawing();
-        EndDrawing();
-    }
-    CloseWindow();
+    glutDisplayFunc(handleFile);
+
+    glutMainLoop();
+
     return 0;
 }
