@@ -57,27 +57,28 @@ $("#limit").oninput = () => {
 // The rest of this code is admittedly kind of messy, but calcPos() is where the fun math happens
 
 function calcPos(num) { // calculates x, y, and width all from one integer!
-	let b4 = num.toString(4); // convert to base 4
-	let x = 0, y = 0, w = 0;
-	for (let i = 1; i < b4.length+1; i++) { // the secret to the algorithm: the least significant digit influences the pixel's location the most.
-		let newVal = b4[b4.length-i];
-		let inc = 2 ** (-i)
-		switch (newVal) {
-			case "0":
+//	let b4 = num.toString(4); // convert to base 4
+	let base4digs = Math.floor(Math.log2(num) / 2) + 1; // sigfigs of num but in base-4 notation
+	let x = 0, y = 0, w = 2 ** (-base4digs);
+	for (let i = 0; i < base4digs; i++) { // the secret to the algorithm: the least significant digit influences the pixel's location the most.
+//		let newVal = b4[b4.length-i];
+		let channels = (num & (3 << (i * 2))) >> (i * 2);
+		let inc = 2 ** (-i - 1);
+		switch (channels) {
+			case 0:
 				break;
-			case "3":
+			case 3:
 				x += inc;
 				break;
-			case "2":
+			case 2:
 				y += inc;
 				break;
-			case "1":
+			case 1:
 				x += inc;
 				y += inc;
 				break;
 		}
 	}
-	w = 2 ** (-b4.length); // optional pixel "width/height" value to aid in interpolation
 	return [x, y, w];
 }
 
@@ -119,6 +120,9 @@ let displayImg = (result = [...storeResult], limit=16384) => {
 
 
 let p = 0;
+let pIncrement = 1;
+let pixelSize = 1;
+let numOfPixels = Math.pow((512 / pixelSize), 2);
 
 let go = setInterval(()=>{ // "Algorithm demo", plays upon load
 	let [x, y, w] = calcPos(p);
@@ -127,3 +131,11 @@ let go = setInterval(()=>{ // "Algorithm demo", plays upon load
 	p++;
 }, 1);
 
+// async function benchmark() {
+// 	for (let p = 0; p < numOfPixels; p += pIncrement) {
+// 		let [x, y, w] = calcPos(p);
+// 		ctx.beginPath();
+// 		ctx.fillRect(x*out.width, y*out.height, pixelSize, pixelSize);
+// 	}
+// }
+// benchmark().then(console.log(performance.now()));
