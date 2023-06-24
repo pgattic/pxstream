@@ -20,7 +20,7 @@ Since the inception of this idea, I have not come across any image format that u
 | ---------------- | :-: | :-: | :-: | :-: |
 | Python (Converter) | ✔️ | ✔️ | ✔️ | ❌ |
 | HTML5 (Viewer)     | ✔️ | ❌ | ✔️ | ❌ |
-| C (Viewer)         | ❌ | ✔️ | ❌ | ❌ |
+| C (Viewer)         | ❌ | ✔️ | ✔️ | ❌ |
 
 \* The JSON format was used for simplicity's sake in testing the algorithm and will soon be removed.
 
@@ -36,8 +36,11 @@ Currently the renderer is made with vanilla JavaScript and the encoder in Python
 
 ### Desktop (only tested on Linux, only supports pxs format, not JSON)
 
-1. `sudo apt update && sudo apt install make gcc`
-2. Also make sure you have Raylib installed on your machine (not available on most package managers unfortunately)
-3. Clone the repo and `cd` into it
+For Fedora/RHEL-based:
+
+1. `sudo dnf install libGLEW-devel freeglut-devel make gcc git`
+2. `git clone` this repo and `cd` into it
+3. Generate a proper pxs file with `./encode.py [file].[png/jpeg/jpg/...]` and then typing `b24` in the prompt
 4. `make`
-5. `./decoder [image].pxs`
+5. `./pxs [image].pxs`
+
