@@ -8,12 +8,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <GL/glut.h>
 #include <GL/glu.h>
 
-#define RESOLUTION 256
+#define HEADER_SIZE 8 // bytes
 
 FILE* f;
+unsigned long imgWidth = 0, imgHeight = 0, virtualWidth = 0;
 
 typedef struct Square {
   int x;
@@ -40,12 +42,17 @@ float pow2(int exp) {
   }
 }
 
+int virtualRes(int x, int y) {
+  int max = x > y? x : y;
+  return pow2(ceil(log2(max)));
+}
+
 void calcPos(int idx, Square* squ) {
   int base4digs = getBase4Digs(idx);
-  squ -> w = pow2(-base4digs) * RESOLUTION;
+  squ -> w = pow2(-base4digs) * virtualWidth;
   for (int i = 0; i < base4digs; i++) {
     char channels = (idx & (3 << (i * 2))) >> (i * 2); // JS implementation's "newVal"
-    float inc = pow2(-(i + 1)) * RESOLUTION;
+    float inc = pow2(-(i + 1)) * virtualWidth;
     switch (channels) {
       case 0:
         break;
@@ -61,6 +68,13 @@ void calcPos(int idx, Square* squ) {
         break;
     }
   }
+}
+
+char inBounds(int idx) {
+  Square fakeSquare;
+  fakeSquare.x = fakeSquare.y = 0;
+  calcPos(idx, &fakeSquare);
+  return (fakeSquare.x < imgWidth && fakeSquare.y < imgHeight) ? 1 : 0;
 }
 
 void displayPixel(int idx, float color[3]) {
@@ -84,7 +98,7 @@ void display() {
 
   // Set every pixel in the frame buffer to the current clear color.
   glClear(GL_COLOR_BUFFER_BIT);
-  fseek(f, 0, SEEK_SET);
+  fseek(f, HEADER_SIZE, SEEK_SET);
 
 
   unsigned char curr; // current byte being read
@@ -100,9 +114,9 @@ void display() {
     head++;
     if ((head % 3) == 0) { // whenever the index goes back to 0 (finishes color)
       displayPixel(pixelIdx, color);
-      pixelIdx++;
+      do {pixelIdx++;} while (!inBounds(pixelIdx));
     }
-  } while (head <= 49152);
+  } while (!feof(f));
 
   // Flush drawing command buffer to make drawing happen as soon as possible.
   glFlush();
@@ -121,14 +135,22 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  for (int i = 0; i < 4; i++) {
+    imgWidth = (imgWidth << 8) | fgetc(f);
+  }
+  for (int i = 0; i < 4; i++) {
+    imgHeight = (imgHeight << 8) | fgetc(f);
+  }
+  virtualWidth = virtualRes(imgWidth, imgHeight);
+
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
-  glutInitWindowSize(RESOLUTION, RESOLUTION);
-  glutCreateWindow("A Simple Triangle");
+  glutInitWindowSize(imgWidth, imgHeight);
+  glutCreateWindow("pxs Viewer");
 
   glClearColor(1, 0, 0, 0);
-  gluOrtho2D(0, RESOLUTION, RESOLUTION, 0);
+  gluOrtho2D(0, imgWidth, imgHeight, 0);
 
   glutDisplayFunc(display);
 

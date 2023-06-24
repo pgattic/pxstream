@@ -34,6 +34,8 @@ def base_convert(n, b):
 def rgb2hex(rgb):
     return '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
 
+def int2longh(num):
+    return '{:08x}'.format(num)
 
 def rgb2fifteen(rgb):
     for i in range(0, len(rgb)):
@@ -88,7 +90,7 @@ def calc_coord(idx, width, height):
 
 def convert_image(image):
     out = []
-    out_hex = ""
+    out_hex = int2longh(dimensions[0]) + int2longh(dimensions[1])
     for curr_pix in range(lim):
         [x, y] = calc_coord(curr_pix, render_limit, render_limit)
         if len(image) > y and len(image[y]) > x:
