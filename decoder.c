@@ -8,15 +8,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <GL/glut.h>
 #include <GL/glu.h>
 
 #define RESOLUTION 256
 
-int offX = 0;
 FILE* f;
-int log4int(int x) { return log(x) / log(4); }
 
 typedef struct Square {
   int x;
@@ -24,12 +21,31 @@ typedef struct Square {
   int w;
 } Square;
 
+int getBase4Digs(int x) {
+  if (x == 0) {return 1;}
+
+  int digs = 0;
+  while (x > 0) {
+    x >>= 2;
+    digs++;
+  }
+  return digs;
+}
+
+float pow2(int exp) {
+  if (exp >= 0) {
+    return 1 << exp;
+  } else {
+    return (1.0f / (1 << -exp));
+  }
+}
+
 void calcPos(int idx, Square* squ) {
-  int base4digs = idx? log4int(idx) + 1 : 0; // amount of sigfigs for the index if put in base-4 notation
-  squ -> w = pow(2, -base4digs) * RESOLUTION;
+  int base4digs = getBase4Digs(idx);
+  squ -> w = pow2(-base4digs) * RESOLUTION;
   for (int i = 0; i < base4digs; i++) {
     char channels = (idx & (3 << (i * 2))) >> (i * 2); // JS implementation's "newVal"
-    float inc = pow(2, -(i + 1)) * RESOLUTION;
+    float inc = pow2(-(i + 1)) * RESOLUTION;
     switch (channels) {
       case 0:
         break;
@@ -56,9 +72,6 @@ void displayPixel(int idx, float color[3]) {
   glPointSize(square.w);
 
 
-  // Drawing is done by specifying a sequence of vertices.  The way these
-  // vertices are connected (or not connected) depends on the argument to
-  // glBegin.  GL_POLYGON constructs a filled polygon.
   glBegin(GL_POINTS);
 
 	glColor3f(color[0] / 255, color[1] / 255, color[2] / 255);
@@ -95,13 +108,6 @@ void display() {
   glFlush();
 }
 
-void init() {
-  glClearColor(1, 0, 0, 0);
-  gluOrtho2D(0, RESOLUTION, RESOLUTION, 0);
-}
-
-
-
 int main(int argc, char** argv) {
 
   if (argc < 2) {
@@ -110,25 +116,21 @@ int main(int argc, char** argv) {
   }
 
   f = fopen(argv[1], "r");
-
-
+  if (f == NULL) {
+    printf("Failed to open \"%s\": File not found.\n", argv[1]);
+    return 1;
+  }
 
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
-  // Position window at (80,80)-(480,380) and give it a title.
-//  glutInitWindowPosition(80, 80);
   glutInitWindowSize(RESOLUTION, RESOLUTION);
   glutCreateWindow("A Simple Triangle");
 
-  init();
+  glClearColor(1, 0, 0, 0);
+  gluOrtho2D(0, RESOLUTION, RESOLUTION, 0);
 
-  // Tell GLUT that whenever the main window needs to be repainted that it
-  // should call the function display().
   glutDisplayFunc(display);
 
-  // Tell GLUT to start reading and processing events.  This function
-  // never returns; the program only exits when the user closes the main
-  // window or kills the process.
   glutMainLoop();
 }
