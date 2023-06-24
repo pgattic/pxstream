@@ -36,8 +36,10 @@ Currently the renderer is made with vanilla JavaScript and the encoder in Python
 
 ### Desktop (only tested on Linux, only supports pxs format, not JSON)
 
-1. `sudo apt update && sudo apt install make gcc`
-2. Also make sure you have Raylib installed on your machine (not available on most package managers unfortunately)
-3. Clone the repo and `cd` into it
-4. `make`
-5. `./decoder [image].pxs`
+For Fedora/RHEL-based:
+
+1. `sudo dnf install libGLEW-devel freeglut-devel make gcc git`
+2. `git clone` this repo and `cd` into it
+3. `make`
+4. `./pxs [image].pxs`
+
