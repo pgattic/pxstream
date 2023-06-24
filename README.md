@@ -38,9 +38,10 @@ Currently the renderer is made with vanilla JavaScript and the encoder in Python
 
 For Fedora/RHEL-based:
 
-1. `sudo dnf install libGLEW-devel freeglut-devel make gcc git`
-2. `git clone` this repo and `cd` into it
-3. Generate a proper pxs file with `./encode.py [file].[png/jpeg/jpg/...]` and then typing `b24` in the prompt
-4. `make`
-5. `./pxs [image].pxs`
+1. `sudo dnf install freeglut-devel gcc git` for Fedora/RHEL based, `sudo apt update && sudo apt install freeglut3-dev gcc git` for Debian or Ubuntu
+2. if you plan on using the encoder, have python3-numpy installed, either through your system package manager or pip.
+3. `git clone` this repo and `cd` into it
+4. Generate a proper pxs file with `./encode.py [file].[png/jpeg/jpg/...]` and then typing `b24` in the prompt
+5. `make`
+6. `./pxs [image].pxs`
 
