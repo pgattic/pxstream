@@ -1,6 +1,6 @@
 
 all:
-	gcc -o pxs decoder.c -lglut -lGL -lGLU -lm
+	gcc -o pxs decoder.c -lglut -lGL -lGLU
 clean:
 	rm -f *.o decoder
 install:

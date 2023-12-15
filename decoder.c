@@ -10,7 +10,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <GL/glut.h>
 #include <GL/glu.h>
 
@@ -47,6 +46,15 @@ int getBase4Digs(int x) {
   return digs;
 }
 
+int log2Ceil(int x) {
+  int result = 1;
+  while (x>0) {
+    x >>= 1;
+    result++;
+  }
+  return result;
+}
+
 float pow2(int exp) { // simple power of 2 calculator (works with negatives too)
   if (exp >= 0) {
     return 1 << exp;
@@ -59,7 +67,7 @@ int virtualResolution(int x, int y) {
   // This function obtains the next-largest power of 2 above the max between x
   // and y. Useful for displaying variable-dimension images
   int max = x > y? x : y;
-  return pow2(ceil(log2(max)));
+  return pow2(log2Ceil(max));
 }
 
 
@@ -73,7 +81,7 @@ void calcPos(int idx, Square* squ) {
   squ -> w = pow2(-base4digs) * virtualWidth;
 
   for (int i = 0; i < base4digs; i++) {
-    char channels = (idx & (3 << (i * 2))) >> (i * 2);
+    char channels = (idx >> (i * 2)) & 3;
     // The above is JS implementation's "newVal".
     // It is simply the "address" within subdivision i that pixel idx falls in.
     // It is a number between 0 and 3.
