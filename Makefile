@@ -1,9 +1,12 @@
 
 all:
 	gcc -o pxs decoder.c -lglut -lGL -lGLU
+
 clean:
-	rm -f *.o decoder
+	rm pxs
+
 install:
-	cp pxs /usr/bin/
+	cp pxs /usr/local/bin/
+
 .PHONY: all clean install
 
