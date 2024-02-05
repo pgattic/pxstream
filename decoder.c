@@ -149,7 +149,7 @@ void display() {
   int pixelIdx = 0;
   float color[3] = {0}; // RGB values
 
-   while (!feof(f)) {
+  while (!feof(f)) {
     // pxs's read-display loop
 
     curr = fgetc(f);
