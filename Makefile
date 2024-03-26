@@ -1,9 +1,17 @@
+NAME=pxs
+PREFIX=/usr
 
 all:
-	gcc -o pxs decoder.c -lglut -lGL -lGLU
+	go build -o ${NAME}
+
 clean:
-	rm -f *.o decoder
+	rm -f ${NAME}
+
 install:
-	cp pxs /usr/bin/
+	mkdir -p ${DESTDIR}${PREFIX}/bin
+	cp -f ${NAME} ${DESTDIR}${PREFIX}/bin
+	chmod 755 ${DESTDIR}${PREFIX}/bin/${NAME}
+
 .PHONY: all clean install
+
 
